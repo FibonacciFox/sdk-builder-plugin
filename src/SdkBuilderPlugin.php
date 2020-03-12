@@ -1,14 +1,24 @@
 <?php
+
 use packager\{
-    cli\Console, Event, JavaExec, Packager, Vendor
+    cli\Console,
+    Event,
+    JavaExec,
+    Packager,
+    Vendor
 };
+
+use php\io\File;
+use php\lib\fs;
+
 /**
  * Class SdkBuilderPlugin
  * @jppm-task-prefix sdk
  *
  * @jppm-task build as build
  */
-class SdkBuilderPlugin {
+class SdkBuilderPlugin
+{
 
     /**
      * @jppm-need-package
@@ -16,11 +26,15 @@ class SdkBuilderPlugin {
      * @param Event $event
      */
 
-    public function build(Event $e){
+    public function build(Event $e)
+    {
+        $directory = new File('./src-jvm/main/java/');
+        //Массив Java Классов
+        $javaClasses = fs::scan($directory, ['extensions' => ['java'], 'excludeDirs' => true]);
         
-        Tasks::createDir('sdk/php');
-        Tasks::cleanDir('sdk/php');
+        $mainDir = fs::parent(end($javaClasses));
 
+        Tasks::createDir('sdk/php/' . fs::name($mainDir));
+        Tasks::cleanDir('sdk/php' . fs::name($mainDir));
     }
-
 }

@@ -1,2 +1,2 @@
-# sdk-builder-plugin
- Build php sdk with java
+# jphp-sdk-builder-plugin
+ Автоматическая генерация php SDK из Java
