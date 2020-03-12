@@ -10,6 +10,7 @@ use packager\{
 
 use php\io\File;
 use php\lib\fs;
+use php\util\Regex;
 
 /**
  * Class SdkBuilderPlugin
@@ -23,18 +24,27 @@ class SdkBuilderPlugin
     /**
      * @jppm-need-package
      * @jppm-description Build php sdk with java.
-     * @param Event $event
      */
 
-    public function build(Event $e)
+    public function build()
     {
         $directory = new File('./src-jvm/main/java/');
-        //Массив Java Классов
         $javaClasses = fs::scan($directory, ['extensions' => ['java'], 'excludeDirs' => true]);
-        
-        $mainDir = fs::parent(end($javaClasses));
 
-        Tasks::createDir('sdk/php/' . fs::name($mainDir));
-        Tasks::cleanDir('sdk/php' . fs::name($mainDir));
+        $sdkDir = 'sdk/php/' . fs::name(fs::parent(end($javaClasses)));
+
+        Tasks::createDir($sdkDir);
+        Tasks::cleanDir($sdkDir);
+
+        foreach ($javaClasses as $value) {
+            $sourse = fs::get($value, 'UTF-8', 'r');
+            
+            //Имя php класса полученное из Java класса
+            $namePhpClass = Regex::of('@Name\(\"(.*?)\"\)')->with($sourse);
+
+            if ($namePhpClass->find()) {
+                Console::log($namePhpClass->first()[1]);
+            }
+        }
     }
 }
